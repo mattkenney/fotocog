@@ -1,0 +1,98 @@
+{#-
+Copyright 2012 Matt Kenney
+
+This file is part of Fotocog.
+
+Fotocog is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+Fotocog is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+details.
+
+You should have received a copy of the GNU Affero General Public License
+along with Fotocog.  If not, see <http://www.gnu.org/licenses/>.
+-#}<!doctype html>
+<html lang="en">
+<head>
+{%- block head -%}
+<meta charset="utf-8" />
+<!-- source code: https://github.com/mattkenney/fotocog -->
+<title>{{ title|default("fotocog") }}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="{{cdn}}/css/bootstrap.min.css" rel="stylesheet" />
+<link href="{{cdn}}/css/fotocog.css" rel="stylesheet" />
+<link href="{{cdn}}/css/bootstrap-responsive.min.css" rel="stylesheet" />
+<!--[if lt IE 9]>
+<script src="{{cdn}}/js/html5.js" type="text/javascipt"></script>
+<![endif]-->
+<link href="/favicon.ico" rel="shortcut icon" />
+<link href="/ico/apple-touch-icon-57-precomposed.png" rel="apple-touch-icon-precomposed" />
+<link href="/ico/apple-touch-icon-72-precomposed.png" rel="apple-touch-icon-precomposed" sizes="72x72" />
+<link href="/ico/apple-touch-icon-114-precomposed.png" rel="apple-touch-icon-precomposed" sizes="114x114" />
+<link href="/ico/apple-touch-icon-144-precomposed.png" rel="apple-touch-icon-precomposed" sizes="144x144" />
+{%- endblock -%}
+</head>
+<body>
+{%- block navbar -%}
+<div class="navbar navbar-fixed-top">
+<div class="navbar-inner">
+<div class="container">
+<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+</a>
+<a class="brand" href="/">fotocog</a>
+<div class="nav-collapse">
+<ul class="nav">
+<li class="active"><a href="/">Home</a></li>
+<li><a href="#about">About</a></li>
+<li><a href="#contact">Contact</a></li>
+</ul>
+</div>
+<div class="nav-collapse pull-right">
+<ul class="nav">
+{%- if user -%}
+<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ user }}</a>
+<ul class="dropdown-menu">
+<li><a href="/account/signout">Sign out</a></li>
+<li><a href="/account/password">Change password</a></li>
+</ul>
+</li>
+{%- else -%}
+<li><a href="/account/signin">Sign in</a></li>
+{%- endif -%}
+</ul>
+</div>
+</div>
+</div>
+</div>
+{%- endblock -%}
+<div class="container">
+{%- block alerts -%}
+{%- for type in alerts -%}
+{%- set clazz = loop.key - %}
+{%- for alert in type -%}
+<div class="row">
+<div class="alert alert-{{ clazz }} offset3 span6">
+<a class="close" data-dismiss="alert">×</a>
+{{ alert }}
+</div>
+</div>
+{%- endfor -%}
+{%- endfor -%}
+{%- endblock -%}
+{%- block container -%}
+{%- endblock -%}
+</div>
+{%- block scripts -%}
+<script src="{{cdn}}/js/jquery-1.7.1.min.js"></script>
+<script src="{{cdn}}/js/bootstrap.min.js"></script>
+{%- endblock -%}
+</body>
+</html>
+
