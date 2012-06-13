@@ -25,7 +25,7 @@ along with Fotocog.  If not, see <http://www.gnu.org/licenses/>.
 <p>Enter your e-mail address and we'll send you a link to reset your password.</p>
 <div class="space1"></div>
 <label>E-mail address
-<input class="span4" name="username" type="email" value="" />
+<input class="span4" name="username" type="email" value="{{ username }}" />
 </label>
 <div class="space2"></div>
 <input class="btn btn-primary" type="submit" value="Send" />

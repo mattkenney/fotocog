@@ -1,152 +1,18 @@
-var crypto = require('crypto'),
+var accounts = require('accounts'),
     locomotive = require('locomotive'),
-    redis = require("redis").createClient(),
     passport = require('passport'),
     passportLocal = require('passport-local');
 
-function encode(value, special, allowed)
+passport.use(new passportLocal.Strategy(accounts.verify));
+
+passport.serializeUser(function(user, callback)
 {
-    special = special || '%';
-    allowed = allowed || '';
-    text = unescape(encodeURIComponent(value));
-    buf = []
-    for (var i = 0; i < text.length; i++)
-    {
-        var c = text.charAt(i);
-        if ((('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9') || (allowed.indexOf(c) >= 0)) && c != special)
-        {
-            buf.push(c);
-        }
-        else
-        {
-            buf.push(special);
-            buf.push((0x100 + c.charCodeAt(0)).toString(16).substring(1, 3).toUpperCase());
-        }
-    }
-    return buf.join('');
-}
-
-function encode_segment(value)
-{
-    return encode(value, '_', '-.');
-}
-
-function ab64decode(data)
-{
-    var result = (new Buffer(data.replace(/\./g, '+'), 'base64').toString('binary'));
-    return result;
-}
-
-function ab64encode(data)
-{
-    var result = (
-        new Buffer(data, 'binary')
-        .toString('base64')
-        .replace(/\+/g, '.')
-        .replace(/=/g, '')
-    );
-    return result;
-}
-
-function createUser(username, password, name, callback)
-{
-    encryptPassword(password, null, function (err, value)
-    {
-        if (err) { callback(err); return; }
-        var args =
-        {
-            name: name,
-            email: username,
-            password: value
-        };
-        redis.hmset(email2key(username), args, function (err)
-        {
-            if (err) { callback(err); return; }
-            callback();
-        });
-    });
-}
-
-function email2key(username)
-{
-    var result = 'user/' + encode_segment(String(username).toLowerCase());
-    return result;
-}
-
-function encryptPassword(secret, options, callback)
-{
-    var rounds = options && options.rounds || 6400;
-    var saltSize = options && options.saltSize || 16;
-    var salt = options && options.salt || crypto.randomBytes(saltSize).toString('binary');
-    var size = options && options.size || 20;
-
-    crypto.pbkdf2(secret, salt, rounds, size, function (err, key)
-    {
-        var hash = '$pbkdf2$' + rounds + '$' + ab64encode(salt) + '$' + ab64encode(key);
-        callback(err, hash);
-    });
-}
-
-function setPassword(username, password, callback)
-{
-    encryptPassword(password, null, function (err, hash)
-    {
-        if (err) { callback(err); return; }
-        redis.hset(email2key(username), "password", hash, function (err)
-        {
-            if (err) { callback(err); return; }
-            callback();
-        });
-    });
-}
-
-var m_dummy;
-function verify(username, password, callback)
-{
-    console.log('verify', username, password);
-    redis.hget(email2key(username), "password", function (err, value)
-    {
-        verifyPassword(password, value || m_dummy, function (err, result)
-        {
-            if (err) { callback(err); return; }
-            if (value && result)
-            {
-                callback(null, username);
-            }
-            else
-            {
-                callback(null, false, { message: 'Wrong E-mail/password combination.' });
-            }
-        });
-    });
-}
-
-function verifyPassword(secret, hash, callback)
-{
-    parts = (/^\$pbkdf2\$([^\$]+)\$([^\$]+)\$([^\$]+)$/).exec(hash);
-    encryptPassword(
-        secret,
-        {
-            rounds: parts && parts[1] && (0|parts[1]),
-            salt: parts && parts[2] && ab64decode(parts[2])
-        },
-        function (err, key)
-        {
-            callback(err, !!(parts && hash === key));
-        }
-    );
-}
-
-passport.use(new passportLocal.Strategy(verify));
-
-passport.serializeUser(function(user, done)
-{
-    done(null, user);
+    callback(null, user);
 });
 
-passport.deserializeUser(function(id, done)
+passport.deserializeUser(function(id, callback)
 {
-    done(null, id);
+    callback(null, id);
 });
 
 var AccountController = new locomotive.Controller();
@@ -164,8 +30,8 @@ AccountController.help = function()
 
 AccountController.password = function()
 {
-    this.alerts = this.request.flash();
     this.user = this.request.user;
+    this.alerts = this.request.flash();
     this.render();
 };
 
@@ -202,6 +68,34 @@ AccountController.signup = function()
     this.render();
 };
 
+AccountController.before('help', function (request, response, next)
+{
+    var self = this;
+
+    // on GET, just render the form
+    if (request.method !== 'POST')
+    {
+        next();
+        return;
+    }
+
+    self.username = request.body.username;
+
+    // see if the entered e-mail is already in the user data
+    accounts.getUserProperty(request.body.username, "name", function (err, value)
+    {
+        if (err) { next(err); return; }
+        if (value)
+        {
+            request.flash('info', 'We sent an e-mail to ' + request.body.username +'. Use the link in that e-mail to reset you password.');
+            response.redirect('/account/signin');
+            return;
+        }
+        request.flash('error', 'We couldn\'t find your account.');
+        next();
+    });
+});
+
 AccountController.before('password', function (request, response, next)
 {
     var self = this;
@@ -231,12 +125,12 @@ AccountController.before('password', function (request, response, next)
         return;
     }
 
-    verify(request.user, request.body.password1, function (err, value)
+    accounts.verify(request.user, request.body.password1, function (err, value)
     {
         if (err) { next(err); return; }
         if (value)
         {
-            setPassword(request.user, request.body.password2, function (err)
+            accounts.setPassword(request.user, request.body.password2, function (err)
             {
                 if (err) { callback(err); return; }
                 request.flash('success', 'Password changed.');
@@ -264,8 +158,8 @@ AccountController.before('signup', function (request, response, next)
 
     // copy over request fields so that if there is a problem and we need to
     // render the form again, the fields values can be filled in
-    self.name = request.body.name,
-    self.username = request.body.username,
+    self.name = request.body.name;
+    self.username = request.body.username;
     self.password = request.body.password;
 
     // validate parameters
@@ -292,14 +186,13 @@ AccountController.before('signup', function (request, response, next)
     }
 
     // see if the entered e-mail is already in the user data
-    var userid = email2key(self.username);
-    redis.hget(userid, "password", function (err, hash)
-    {t
+    accounts.getUserProperty(self.username, "password", function (err, hash)
+    {
         if (err) { next(err); return; }
 
         if (hash)
         {
-            verifyPassword(self.password, hash, function (err, value)
+            accounts.verifyPassword(self.password, hash, function (err, value)
             {
                 if (err) { next(err); return; }
                 if (value)
@@ -320,7 +213,7 @@ AccountController.before('signup', function (request, response, next)
             return;
         }
 
-        createUser(self.username, self.password, self.name, function (err)
+        accounts.createUser(self.username, self.password, self.name, function (err)
         {
             if (err) { next(err); return; }
             request.logIn(self.username, function (err)
@@ -330,11 +223,6 @@ AccountController.before('signup', function (request, response, next)
             });
         });
     });
-});
-
-encryptPassword('password', null, function (err, value)
-{
-    m_dummy = value;
 });
 
 module.exports = AccountController;
