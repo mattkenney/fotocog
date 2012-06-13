@@ -29,10 +29,10 @@ along with Fotocog.  If not, see <http://www.gnu.org/licenses/>.
 <label>Password
 <input class="span4" name="password" type="password" value="" />
 </label>
-<label class="checkbox">
+<!--<label class="checkbox">
 <input checked="checked" name="persist" type="checkbox" value="1" />
 Stay signed in
-</label>
+</label>-->
 <div class="space2"></div>
 <input class="btn btn-primary" type="submit" value="Sign in" />
 </div>
@@ -48,10 +48,10 @@ Stay signed in
 </label>
 </div>
 <div class="span2">
-<label>Need help signing in?
+<!--<label>Need help signing in?
 <div class="space1"></div>
 <a href="help" class="btn btn-success">Help</a>
-</label>
+</label>-->
 </div>
 </div>
 </div>
