@@ -19,11 +19,7 @@ module.exports = function routes()
         }),
         { via: 'post' }
     );
-    this.match('account/signout', function (request, response)
-    {
-        request.logOut();
-        response.redirect('/');
-    });
+    this.match('account/signout', 'account#signout');
     this.match('account/signup', 'account#signup');
     this.match('account/signup', 'account#signup', { via: 'post' });
     this.match('account/password', 'account#password');

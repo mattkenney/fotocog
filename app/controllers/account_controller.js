@@ -5,15 +5,9 @@ var accounts = require('accounts'),
 
 passport.use(new passportLocal.Strategy(accounts.verify));
 
-passport.serializeUser(function(user, callback)
-{
-    callback(null, user);
-});
+passport.serializeUser(accounts.serializeUser);
 
-passport.deserializeUser(function(id, callback)
-{
-    callback(null, id);
-});
+passport.deserializeUser(accounts.deserializeUser);
 
 var AccountController = new locomotive.Controller();
 
@@ -55,6 +49,12 @@ AccountController.signin = function()
     }
     this.alerts = this.request.flash();
     this.render();
+};
+
+AccountController.signout = function()
+{
+    this.request.logOut();
+    this.response.redirect('/');
 };
 
 AccountController.signup = function()
@@ -163,24 +163,13 @@ AccountController.before('signup', function (request, response, next)
     self.password = request.body.password;
 
     // validate parameters
-    var isError = false;
-    if (self.name.length < 1)
+    var errors = accounts.validateParameters(self.username, self.password, self.name);
+    if (errors)
     {
-        isError = true;
-        self.request.flash('error', 'full name is required');
-    }
-    if (!(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i).test(self.username))
-    {
-        isError = true;
-        self.request.flash('error', 'Missing or incomplete e-mail address.');
-    }
-    if (self.password.length < 6)
-    {
-        isError = true;
-        self.request.flash('error', 'Your password must be at least six characters long.');
-    }
-    if (isError)
-    {
+        for (var i = 0; i < errors.length; i++)
+        {
+            self.request.flash('error', errors[i]);
+        }
         next();
         return;
     }
@@ -197,11 +186,14 @@ AccountController.before('signup', function (request, response, next)
                 if (err) { next(err); return; }
                 if (value)
                 {
-                    request.logIn(self.username, function (err)
+                    accounts.deserializeUser(self.username, function (err, user)
                     {
-                        if (err) { next(err); return; }
-                        request.flash('info', 'You already have an account with this username and password. You are now logged in.');
-                        response.redirect('/');
+                        request.logIn(user, function (err)
+                        {
+                            if (err) { next(err); return; }
+                            request.flash('info', 'You already have an account with this username and password. You are now logged in.');
+                            response.redirect('/');
+                        });
                     });
                 }
                 else
@@ -213,13 +205,13 @@ AccountController.before('signup', function (request, response, next)
             return;
         }
 
-        accounts.createUser(self.username, self.password, self.name, function (err)
+        accounts.createUser(self.username, self.password, self.name, function (err, user)
         {
             if (err) { next(err); return; }
-            request.logIn(self.username, function (err)
+            request.logIn(user, function (err)
             {
                 if (err) { next(err); return; }
-                result.redirect('/');
+                response.redirect('/');
             });
         });
     });

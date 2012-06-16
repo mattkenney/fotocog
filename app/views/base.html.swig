@@ -57,7 +57,7 @@ along with Fotocog.  If not, see <http://www.gnu.org/licenses/>.
 <div class="nav-collapse pull-right">
 <ul class="nav">
 {%- if user -%}
-<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ user }}</a>
+<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ user.name }}</a>
 <ul class="dropdown-menu">
 <li><a href="/account/signout">Sign out</a></li>
 <li><a href="/account/password">Change password</a></li>
