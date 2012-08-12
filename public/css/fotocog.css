@@ -38,4 +38,31 @@ span.space1,span.space2
 {
 display:inline-block;
 }
+/**/
+.cell
+{
+background-color: #eee;
+text-align: center;
+-webkit-border-radius: 3px;
+-moz-border-radius: 3px;
+border-radius: 3px;
+min-height: 30px;
+line-height: 30px;
+margin-bottom:3px;
+margin-top:3px;
+}
+.wide
+{
+width:100%;
+}
+.c
+{
+text-align:center;
+}
+.d
+{
+font-size:120%;
+font-weight:bold;
+width:15%;
+}
 

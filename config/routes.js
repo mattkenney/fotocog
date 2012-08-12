@@ -24,5 +24,11 @@ module.exports = function routes()
     this.match('account/signup', 'account#signup', { via: 'post' });
     this.match('account/password', 'account#password');
     this.match('account/password', 'account#password', { via: 'post' });
+
+    this.match('m/:handle/:year/:month/:day', 'photos#day');
+    this.match('m/:handle/:year/:month', 'photos#month');
+    this.match('m/:handle/:year', 'photos#year');
+    this.match('m/:handle', 'photos#main');
+    this.match('m', 'photos#bare');
 };
 
