@@ -1,9 +1,17 @@
 var accounts = require('accounts'),
+    credentials = require(__dirname + '/../../config/credentials'),
     locomotive = require('locomotive'),
     passport = require('passport'),
+    passportFacebook = require('passport-facebook'),
     passportLocal = require('passport-local');
 
 passport.use(new passportLocal.Strategy(accounts.verify));
+passport.use(new passportFacebook.Strategy(
+{
+    clientID:credentials.facebook.id,
+    clientSecret:credentials.facebook.secret,
+    callbackURL:"https://www.fotocog.com/account/callback"
+}, accounts.facebookUser));
 
 passport.serializeUser(accounts.serializeUser);
 

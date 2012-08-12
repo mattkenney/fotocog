@@ -25,6 +25,13 @@ module.exports = function routes()
     this.match('account/password', 'account#password');
     this.match('account/password', 'account#password', { via: 'post' });
 
+    this.match('account/facebook', passport.authenticate('facebook'));
+    this.match('account/callback', passport.authenticate('facebook',
+    {
+        successRedirect:"/",
+        failureRedirect:"/account/signin"
+    }));
+
     this.match('m/:handle/:year/:month/:day', 'photos#day');
     this.match('m/:handle/:year/:month', 'photos#month');
     this.match('m/:handle/:year', 'photos#year');
