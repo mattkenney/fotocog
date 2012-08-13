@@ -40,16 +40,24 @@ Stay signed in
 </form>
 <div class="row">
 <div class="offset4 span4 well">
+<label>You can also sign in with Facebook.
+<span class="space1"></span>
+<a href="facebook" class="btn btn-primary">Facebook</a>
+</label>
+</div>
+</div>
+<div class="row">
+<div class="offset4 span4 well">
 <div class="row">
 <div class="span2">
 <label>Not a member yet?
-<div class="space1"></div>
+<span class="space1"></span>
 <a href="signup" class="btn btn-success">Sign up</a>
 </label>
 </div>
 <div class="span2">
 <!--<label>Need help signing in?
-<div class="space1"></div>
+<span class="space1"></span>
 <a href="help" class="btn btn-success">Help</a>
 </label>-->
 </div>
