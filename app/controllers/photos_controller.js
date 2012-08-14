@@ -139,6 +139,7 @@ for (key in PhotosController)
                 this.user = this.request.user;
                 if (!this.user)
                 {
+                    this.request.session.redirect = this.request.url;
                     this.redirect('/account/signin');
                     return;
                 }

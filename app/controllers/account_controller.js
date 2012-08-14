@@ -37,6 +37,11 @@ AccountController.password = function()
     this.render();
 };
 
+AccountController.success = function ()
+{
+    this.redirect(this.request.session.redirect || '/');
+};
+
 AccountController.reset = function()
 {
     if (this.request.user)
@@ -226,4 +231,3 @@ AccountController.before('signup', function (request, response, next)
 });
 
 module.exports = AccountController;
-

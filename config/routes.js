@@ -6,6 +6,7 @@ module.exports = function routes()
 
     this.match('account/help', 'account#help');
     this.match('account/help', 'account#help', { via: 'post' });
+    this.match('account/success', 'account#success');
     this.match('account/reset', 'account#reset');
     this.match('account/reset', 'account#reset', { via: 'post' });
     this.match('account/signin', 'account#signin');
@@ -13,7 +14,7 @@ module.exports = function routes()
         'account/signin',
         passport.authenticate('local',
         {
-            successRedirect: '/',
+            successRedirect: '/account/success',
             failureRedirect: '/account/signin',
             failureFlash: true
         }),
@@ -28,7 +29,7 @@ module.exports = function routes()
     this.match('account/facebook', passport.authenticate('facebook'));
     this.match('account/callback', passport.authenticate('facebook',
     {
-        successRedirect:"/",
+        successRedirect:"/account/success",
         failureRedirect:"/account/signin"
     }));
 
