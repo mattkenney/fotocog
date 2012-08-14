@@ -28,7 +28,8 @@ module.exports = function()
         response.render('404',
         {
             status: 404,
-            url: request.url
+            url: request.url,
+            user: request.user
         });
     });
     this.use(function (error, request, response, next)
@@ -36,7 +37,8 @@ module.exports = function()
         response.render('500',
         {
             status: error.status || 500,
-            error: error
+            error: error,
+            user: request.user
         });
     });
 };

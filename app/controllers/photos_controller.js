@@ -11,7 +11,8 @@ function checkAccess(controller)
     controller.response.render('403',
     {
         status: 403,
-        url: controller.request.url
+        url: controller.request.url,
+        user: controller.request.user
     });
     return true;
 }
@@ -34,7 +35,8 @@ function checkValid(controller)
         controller.response.render('404',
         {
             status: 404,
-            url: controller.request.url
+            url: controller.request.url,
+            user: controller.request.user
         });
         return true;
     }

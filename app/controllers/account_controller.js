@@ -40,6 +40,7 @@ AccountController.password = function()
 AccountController.success = function ()
 {
     this.redirect(this.request.session.redirect || '/');
+    delete this.request.session;
 };
 
 AccountController.reset = function()
