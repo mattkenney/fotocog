@@ -19,6 +19,10 @@ passport.deserializeUser(accounts.deserializeUser);
 
 var AccountController = new locomotive.Controller();
 
+AccountController.callback = function () {};
+
+AccountController.facebook = function () {};
+
 AccountController.help = function()
 {
     if (this.request.user)
@@ -81,6 +85,12 @@ AccountController.signup = function()
     this.alerts = this.request.flash();
     this.render();
 };
+
+AccountController.before('callback', passport.authenticate('facebook',
+{
+    successRedirect:"/account/success",
+    failureRedirect:"/account/signin"
+}));
 
 AccountController.before('help', function (request, response, next)
 {
@@ -157,6 +167,31 @@ AccountController.before('password', function (request, response, next)
             next();
         }
     });
+});
+
+
+AccountController.before('facebook', passport.authenticate('facebook',
+{
+    scope:['email']
+}));
+
+var local = passport.authenticate('local',
+{
+    successRedirect: '/account/success',
+    failureRedirect: '/account/signin',
+    failureFlash: true
+});
+
+AccountController.before('signin', function (request, response, next)
+{
+    // on GET, just render the form
+    if (request.method !== 'POST')
+    {
+        next();
+        return;
+    }
+
+    local(request, response, next);
 });
 
 AccountController.before('signup', function (request, response, next)

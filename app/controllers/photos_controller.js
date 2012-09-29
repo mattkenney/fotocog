@@ -67,7 +67,6 @@ PhotosController.main = function ()
 
 PhotosController.year = function ()
 {
-console.log('year');
     var self = this;
     photos.months(self.request.params.handle, self.request.params.year, function (err, data)
     {
