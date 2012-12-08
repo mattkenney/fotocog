@@ -5,10 +5,12 @@ padding-top: 60px;
 .navbar .nav .active > a
 {
 background-color:#134;
+color:#eee;
 }
 .navbar .brand
 {
 color:#ccc;
+text-shadow:none;
 }
 .navbar-inner
 {
@@ -23,7 +25,14 @@ background-image:linear-gradient(top, #39c, #269);
 .navbar .nav > li > a
 {
 color:#ccc;
+text-shadow:none;
 }
+
+.navbar .nav > li > a:hover
+{
+color:#eee;
+}
+
 .space1
 {
 display:block;
@@ -36,13 +45,6 @@ display:block;
 min-height:2ex;
 min-width:1em;
 }
-/*
-span.space1,span.space2
-{
-display:inline-block;
-}
-*/
-/**/
 .cell
 {
 background-color: #eee;
@@ -54,6 +56,10 @@ min-height: 30px;
 line-height: 30px;
 margin-bottom:3px;
 margin-top:3px;
+}
+.cell>h2
+{
+margin:0;
 }
 .wide
 {
@@ -68,5 +74,17 @@ text-align:center;
 font-size:120%;
 font-weight:bold;
 width:15%;
+}
+.photo
+{
+background-color: #fff;
+text-align: center;
+border:1px solid #ccc;
+-webkit-border-radius: 3px;
+-moz-border-radius: 3px;
+border-radius: 3px;
+display:inline-block;
+margin:3px;
+padding:6px;
 }
 
