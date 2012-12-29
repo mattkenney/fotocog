@@ -45,22 +45,16 @@ module.exports = function (app)
         next();
     });
 
-    app.get('/account/callback', function (req, res)
+    app.get('/account/callback', passport.authenticate('facebook',
     {
-        passport.authenticate('facebook',
-        {
-            scope:['email']
-        });
-    });
+        successRedirect:"/account/success",
+        failureRedirect:"/account/signin"
+    }));
 
-    app.get('/account/facebook', function (req, res)
+    app.get('/account/facebook', passport.authenticate('facebook',
     {
-        passport.authenticate('facebook',
-        {
-            successRedirect:"/account/success",
-            failureRedirect:"/account/signin"
-        });
-    });
+        scope:['email']
+    }));
 
     app.get('/account/help', function (req, res)
     {
