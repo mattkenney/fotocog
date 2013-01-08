@@ -41,13 +41,13 @@ module.exports = function (app)
     app.use(passport.session());
     app.use(function(req, res, next)
     {
-        if (req.user && req.user.authenticator && !req.user.aggreed)
+        if (req.user && req.user.authenticator && !req.user.agreed)
         {
             if (req.path === '/account/agree')
             {
                 if (req.method === 'POST' && req.body.agree)
                 {
-                    accounts.setUserProperty(req.user.email, "agreed", true, function (err)
+                    accounts.setUserProperty(req.user.key, "agreed", "1", function (err)
                     {
                         if (err) { next(err); return; }
                         res.redirect(req.session.redirect || '/');
