@@ -1,0 +1,42 @@
+{%- extends 'base.html' -%}
+{#-
+Copyright 2012 Matt Kenney
+
+This file is part of Fotocog.
+
+Fotocog is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+Fotocog is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+details.
+
+You should have received a copy of the GNU Affero General Public License
+along with Fotocog.  If not, see <http://www.gnu.org/licenses/>.
+-#}
+{%- block container -%}
+<form action="/account/agree" method="post">
+<div class="row">
+<div class="offset4 span4 well">
+<h3>Sign up</h3>
+<div class="space2"></div>
+<label>Name
+<input class="span4" disabled="disabled" name="name" type="text" readonly="readonly" value="{{ user.name }}" />
+</label>
+<label>E-mail address
+<input class="span4" disabled="disabled" name="username" type="email" readonly="readonly" value="{{ user.email }}" />
+</label>
+<p>By clicking Sign Up, you agree to our
+<a href="/policies/termsofuse.html" target="_blank">Terms of Use</a> and
+<a href="/policies/privacy.html" target="_blank">Privacy Policy</a>.
+</p>
+<div class="space2"></div>
+<input class="btn btn-primary" name="agree" type="submit" value="Sign up" />
+</div>
+</div>
+</form>
+{%- endblock -%}
+

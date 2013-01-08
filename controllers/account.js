@@ -41,8 +41,34 @@ module.exports = function (app)
     app.use(passport.session());
     app.use(function(req, res, next)
     {
+        if (req.user && req.user.authenticator && !req.user.aggreed)
+        {
+            if (req.path === '/account/agree')
+            {
+                if (req.method === 'POST' && req.body.agree)
+                {
+                    accounts.setUserProperty(req.user.email, "agreed", true, function (err)
+                    {
+                        if (err) { next(err); return; }
+                        res.redirect(req.session.redirect || '/');
+                        delete req.session.redirect;
+                    });
+                    return;
+                }
+            }
+            else
+            {
+                res.redirect('/account/agree');
+                return;
+            }
+        }
         res.locals.user = req.user;
         next();
+    });
+
+    app.get('/account/agree', function (req, res)
+    {
+        res.render('account/agree');
     });
 
     app.get('/account/callback', passport.authenticate('facebook',
