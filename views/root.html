@@ -20,5 +20,17 @@ along with Fotocog.  If not, see <http://www.gnu.org/licenses/>.
 {%- block container -%}
 <h1>Welcome to fotocog!</h1>
 <p>Photo sharing for busy people.</p>
+{%- if user -%}
+<div class="row">
+<div class="offset2 span8">
+<div class="cell"><h2>
+<a href="/m/{{ user.handle }}/">{{ user.name }}'s Photos</a>
+</h2></div>
+</div>
+</div>
+{%- else -%}
+<p><a href="/account/signin">Sign In</a> to see and upload your own photos,
+and also see the photos your friends have shared with you.</p>
+{%- endif -%}
 {%- endblock -%}
 
