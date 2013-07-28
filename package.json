@@ -1,22 +1,19 @@
 {
-    "name": "fotocog",
-    "description": "Photo sharing for busy people.",
-    "version": "0.0.1",
-    "private": true,
-    "dependencies":
-    {
-        "connect-flash": "0.1.0",
-        "consolidate": "0.5.0",
-        "express": "3.0.3",
-        "knox":"0.4.3",
-        "node-uuid":"1.4.0",
-        "passport": "0.1.15",
-        "passport-facebook": "0.1.4",
-        "passport-local": "0.1.6",
-        "redis": "0.8.2",
-        "swig": "0.13.2",
-        "xml2js": "0.2.2",
-        "xregexp": "2.0.0"
-    }
+  "name": "fotocog",
+  "description": "Photo sharing for busy people.",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "aws-sdk": "~1.4.1",
+    "connect-flash": "~0.1.1",
+    "consolidate": "~0.9.1",
+    "express": "~3.3.4",
+    "node-uuid": "~1.4.0",
+    "passport": "~0.1.17",
+    "passport-facebook": "~0.1.5",
+    "passport-local": "~0.1.6",
+    "redis": "~0.8.4",
+    "swig": "~0.14.0",
+    "xregexp": "~2.0.0"
+  }
 }
-

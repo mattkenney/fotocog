@@ -1,6 +1,6 @@
 {%- extends 'base.html' -%}
 {#-
-Copyright 2012 Matt Kenney
+Copyright 2012, 2013 Matt Kenney
 
 This file is part of Fotocog.
 
@@ -26,7 +26,7 @@ along with Fotocog.  If not, see <http://www.gnu.org/licenses/>.
 <div class="row">
 <div class="offset2 span8 cell">
 {%- for photo in photos -%}
-<div class="photo"><img alt="" src="{{ photo }}" /></div>
+<div class="photo"><a href="{{ photo.fullsize }}"><img alt="" src="{{ photo.thumbnail }}" /></a></div>
 {{ loop.cycle('', '<br />') }}
 {%- endfor -%}
 </div>

@@ -22,7 +22,7 @@ background-image:-webkit-linear-gradient(top, #39c, #269);
 background-image:-o-linear-gradient(top, #39c, #269);
 background-image:linear-gradient(top, #39c, #269);
 }
-.navbar .nav > li > a
+.navbar .nav > li > a, .navbar .nav-collapse > .nav > li > a
 {
 color:#ccc;
 text-shadow:none;
@@ -31,6 +31,11 @@ text-shadow:none;
 .navbar .nav > li > a:hover
 {
 color:#eee;
+}
+
+.navbar .nav-collapse > .nav > li > a:hover
+{
+color:#134;
 }
 
 .space1
