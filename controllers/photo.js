@@ -17,13 +17,16 @@
  * along with Fotocog.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var photos = require('photos');
+var async = require('async')
+,   photos = require('photos')
+;
 
-function checkAccess(req, res)
+function checkAccess(req, res, callback)
 {
     if (req.params.handle === req.user.handle)
     {
-        return false;
+        callback(null, req, res);
+        return;
     }
     //TODO: tag based sharing
     res.render('403',
@@ -32,10 +35,22 @@ function checkAccess(req, res)
         url: req.url,
         user: req.user
     });
-    return true;
+    callback(true);
 }
 
-function checkValid(req, res)
+function checkLogin(req, res, callback)
+{
+    if (!req.user)
+    {
+        req.session.redirect = req.url;
+        res.redirect('/account/signin');
+        callback(true);
+        return;
+    }
+    callback(null, req, res);
+}
+
+function checkValid(req, res, callback)
 {
     var result = false,
         year = 0|req.params.year,
@@ -55,33 +70,37 @@ function checkValid(req, res)
             url: req.url,
             user: req.user
         });
-        return true;
+        callback(true);
+        return;
     }
-    return false;
+    callback(null, req, res);
 }
 
-function checkRequest(req, res)
+function checkPath(req, res, callback)
 {
-    if (!req.user)
-    {
-        req.session.redirect = req.url;
-        res.redirect('/account/signin');
-        return true;
-    }
-    if (checkAccess(req, res))
-    {
-        return true;
-    }
-    if (!(/\/$/).test(req.url))
+    if (!(/\/$/).test(req.url) && !(/\/p\//).test(req.url))
     {
         res.redirect(req.url + '/');
-        return true;
+        callback(null, req, res);
+        callback(true);
+        return;
     }
-    if (checkValid(req, res))
-    {
-        return true;
-    }
-    return false;
+    callback(null, req, res);
+}
+
+function checkRequest(req, res, next)
+{
+    async.waterfall([
+        function (callback)
+        {
+            callback(null, req, res);
+        },
+        checkLogin,
+        checkAccess,
+        checkPath,
+        checkValid,
+        next
+    ]);
 }
 
 module.exports = function (app)
@@ -93,94 +112,89 @@ module.exports = function (app)
 
     app.get('/m/:handle', function (req, res, next)
     {
-        if (checkRequest(req, res))
+        checkRequest(req, res, function()
         {
-            return;
-        }
+            photos.years(req.params.handle, function (err, data)
+            {
+                if (err) return next(err);
 
-        photos.years(req.params.handle, function (err, data)
-        {
-            if (err) { next(err); return; }
-
-            res.render('photo/root', { years: data });
+                res.render('photo/root', { years: data });
+            });
         });
     });
 
     app.get('/m/:handle/p/:photo', function (req, res, next)
     {
-        photos.photo(req.user.bucket || 'fotocog', req.params.photo, function (url)
+        checkRequest(req, res, function()
         {
-            res.redirect(url);
+            photos.photo(req.user.bucket, req.user.handle, req.params.photo, function (url)
+            {
+                res.redirect(url);
+            });
         });
     });
 
     app.get('/m/:handle/:year', function (req, res, next)
     {
-        if (checkRequest(req, res))
+        checkRequest(req, res, function()
         {
-            return;
-        }
-
-        photos.months(req.params.handle, req.params.year, function (err, data)
-        {
-            if (err) { next(err); return; }
-
-            var locals = {
-                year: req.params.year,
-                months: []
-            };
-            for (var i = 0; data && i < 12; i++)
+            photos.months(req.params.handle, req.params.year, function (err, data)
             {
-                locals.months[i] = {};
-                locals.months[i].text = req.locale_info.mon[i];
-                if (data[i + 1])
+                if (err) return next(err);
+
+                var locals = {
+                    year: req.params.year,
+                    months: []
+                };
+                for (var i = 0; i < 12; i++)
                 {
-                    locals.months[i].href = (i + 1) + '/';
+                    locals.months[i] = {};
+                    locals.months[i].text = req.locale_info.mon[i];
                 }
-            }
-            locals.tri1 = locals.months.slice(0, 4);
-            locals.tri2 = locals.months.slice(4, 8);
-            locals.tri3 = locals.months.slice(8, 12);
-            res.render('photo/year', locals);
+                for (var i = 0; data && i < data.length; i++)
+                {
+                    locals.months[data[i] - 1].href = data[i] + '/';
+                }
+                locals.tri1 = locals.months.slice(0, 4);
+                locals.tri2 = locals.months.slice(4, 8);
+                locals.tri3 = locals.months.slice(8, 12);
+                res.render('photo/year', locals);
+            });
         });
     });
 
     app.get('/m/:handle/:year/:month', function (req, res, next)
     {
-        if (checkRequest(req, res))
+        checkRequest(req, res, function()
         {
-            return;
-        }
+            photos.days(req.params.handle, req.params.year, req.params.month, function (err, data)
+            {
+                if (err) return next(err);
 
-        photos.days(req.params.handle, req.params.year, req.params.month, function (err, data)
-        {
-            if (err) { next(err); return; }
-
-            res.render('photo/month', {
-                year: req.params.year,
-                days: data,
-                month: req.locale_info.mon[req.params.month - 1],
-                weeks: photos.cal(req.params.year, req.params.month, req.locale_info)
+                res.render('photo/month', {
+                    year: req.params.year,
+                    days: data,
+                    month: req.locale_info.mon[req.params.month - 1],
+                    weeks: photos.cal(req.params.year, req.params.month, req.locale_info)
+                });
             });
         });
     });
 
     app.get('/m/:handle/:year/:month/:day', function (req, res, next)
     {
-        if (checkRequest(req, res))
+        checkRequest(req, res, function()
         {
-            return;
-        }
+            photos.photos(req.params.handle, req.params.year, req.params.month, req.params.day, function (err, data)
+            {
+                if (err) return next(err);
 
-        photos.photos(req.params.handle, req.params.year, req.params.month, req.params.day, function (err, data)
-        {
-            if (err) { next(err); return; }
-
-            res.render('photo/day', {
-                year: req.params.year,
-                month: req.locale_info.mon[req.params.month - 1],
-                day: 0|req.params.day,
-                photos: data
+                res.render('photo/day', {
+                    year: req.params.year,
+                    month: req.locale_info.mon[req.params.month - 1],
+                    day: 0|req.params.day,
+                    photos: data
+                });
             });
         });
     });
