@@ -19,6 +19,7 @@
 
 var async = require('async')
 ,   photos = require('photos')
+,   redis = require("redis").createClient()
 ;
 
 function checkAccess(req, res, callback)
@@ -28,14 +29,23 @@ function checkAccess(req, res, callback)
         callback(null, req, res);
         return;
     }
-    //TODO: tag based sharing
-    res.render('403',
+    var key = 'share/' + req.user.uuid;
+    redis.hget(key, req.params.handle, function (err, name)
     {
-        status: 403,
-        url: req.url,
-        user: req.user
+        if (name)
+        {
+            callback(null, req, res);
+            return;
+        }
+        //TODO: tag based sharing
+        res.render('403',
+        {
+            status: 403,
+            url: req.url,
+            user: req.user
+        });
+        callback(true);
     });
-    callback(true);
 }
 
 function checkLogin(req, res, callback)
@@ -81,7 +91,6 @@ function checkPath(req, res, callback)
     if (!(/\/$/).test(req.url) && !(/\/p\//).test(req.url))
     {
         res.redirect(req.url + '/');
-        callback(null, req, res);
         callback(true);
         return;
     }
@@ -127,9 +136,12 @@ module.exports = function (app)
     {
         checkRequest(req, res, function()
         {
-            photos.photo(req.user.bucket, req.user.handle, req.params.photo, function (url)
+            redis.hget("buckets", req.params.handle, function (err, bucket)
             {
-                res.redirect(url);
+                photos.photo(bucket, req.params.handle, req.params.photo, function (url)
+                {
+                    res.redirect(url);
+                });
             });
         });
     });

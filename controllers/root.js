@@ -16,12 +16,37 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with Fotocog.  If not, see <http://www.gnu.org/licenses/>.
  */
+var _ = require('underscore')
+,   redis = require("redis").createClient()
+;
 
 module.exports = function (app)
 {
     app.get('/', function (req, res)
     {
-        res.render('root');
+        if (req.user)
+        {
+            var key = 'share/' + req.user.uuid;
+            redis.hgetall(key, function (err, shares)
+            {
+                shares = _.map(shares, function (value, key)
+                {
+                    return (
+                    {
+                        handle: key,
+                        name: value
+                    });
+                });
+                res.render('root',
+                {
+                    shares: shares
+                });
+            });
+        }
+        else
+        {
+            res.render('root');
+        }
     });
 };
 

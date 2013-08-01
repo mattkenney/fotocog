@@ -15,6 +15,7 @@
     "passport-local": "~0.1.6",
     "redis": "~0.8.4",
     "swig": "~0.14.0",
+    "underscore": "~1.5.1",
     "xregexp": "~2.0.0"
   }
 }
