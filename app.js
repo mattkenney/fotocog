@@ -42,8 +42,6 @@ app.use(express.static('public'));
 app.use(express.bodyParser());
 app.use(express.cookieParser(credentials.cookie));
 app.use(express.cookieSession());
-app.use(express.logger());
-app.use(express.errorHandler());
 app.use(flash());
 app.use(locale_info());
 
