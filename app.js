@@ -33,6 +33,7 @@ swig.init({ root: './views' });
 app.enable('trust proxy');
 app.engine('html', cons.swig);
 
+app.set('port', process.env.PORT || 3000);
 app.set('view engine', 'html');
 app.set('views', './views');
 
@@ -101,7 +102,6 @@ app.use(function (err, req, res, next)
 
 // ***** Server *****
 
-app.listen(3000);
+app.listen(app.get('port'));
 
-console.log('Listening on port 3000');
-
+console.log('Listening on port ' + app.get('port'));
