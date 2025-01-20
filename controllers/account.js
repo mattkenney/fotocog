@@ -108,8 +108,10 @@ module.exports = function (app)
 
     app.get('/account/signout', function (req, res)
     {
-        req.logOut();
-        res.redirect('/');
+        req.logout(err => {
+            if (err) { return next(err); }
+            res.redirect('/');
+        });
     });
 
     app.get('/account/signup', function (req, res)
