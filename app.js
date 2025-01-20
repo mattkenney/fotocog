@@ -1,6 +1,6 @@
-#!/usr/bin/node
+#!/usr/bin/env node
 /*
- * Copyright 2012 Matt Kenney
+ * Copyright 2012, 2025 Matt Kenney
  *
  * This file is part of Fotocog.
  *
@@ -18,20 +18,23 @@
  * along with Fotocog.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var cons = require('consolidate'),
+var bodyParser = require('body-parser'),
+    cookieSession = require('cookie-session'),
     credentials = require('./credentials'),
     express = require('express'),
     flash = require('connect-flash'),
-    locale_info = require('locale_info'),
-    swig = require('swig'),
+    locale_info = require('./lib/locale_info'),
+    nunjucks = require('nunjucks'),
     app = express();
 
 // ***** Initialization *****
 
-swig.init({ root: './views' });
+nunjucks.configure('views', {
+    autoescape: true,
+    express: app
+});
 
 app.enable('trust proxy');
-app.engine('html', cons.swig);
 
 app.set('port', process.env.PORT || 3000);
 app.set('view engine', 'html');
@@ -40,9 +43,8 @@ app.set('views', './views');
 // ***** Middleware *****
 
 app.use(express.static('public'));
-app.use(express.bodyParser());
-app.use(express.cookieParser(credentials.cookie));
-app.use(express.cookieSession());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieSession({ keys: [credentials.cookie] }));
 app.use(flash());
 app.use(locale_info());
 
@@ -65,6 +67,23 @@ app.use(function(req, res, next)
         render.call(res, view, locals, callback);
     };
     next();
+});
+
+// make cookie-session compatitble with passport 6+
+app.use(function(req, _, next) {
+  if (req.session && !req.session.regenerate) {
+    req.session.regenerate = cb => {
+      cb();
+    };
+  }
+
+  if (req.session && !req.session.save) {
+    req.session.save = cb => {
+      cb();
+    };
+  }
+
+  next();
 });
 
 // ***** Controllers *****

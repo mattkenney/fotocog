@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Matt Kenney
+ * Copyright 2012, 2025 Matt Kenney
  *
  * This file is part of Fotocog.
  *
@@ -17,19 +17,11 @@
  * along with Fotocog.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var accounts = require('accounts'),
-    credentials = require('../credentials'),
+var accounts = require('../lib/accounts'),
     passport = require('passport'),
-    passportFacebook = require('passport-facebook'),
     passportLocal = require('passport-local');
 
 passport.use(new passportLocal.Strategy(accounts.verify));
-passport.use(new passportFacebook.Strategy(
-{
-    clientID:credentials.facebook.id,
-    clientSecret:credentials.facebook.secret,
-    callbackURL:"https://www.fotocog.com/account/callback"
-}, accounts.facebookUser));
 
 passport.serializeUser(accounts.serializeUser);
 
