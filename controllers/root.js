@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, 2015 Matt Kenney
+ * Copyright 2012, 2015, 2026 Matt Kenney
  *
  * This file is part of Fotocog.
  *
@@ -17,10 +17,10 @@
  * along with Fotocog.  If not, see <http://www.gnu.org/licenses/>.
  */
 var _ = require('underscore')
-,   redis = require("redis").createClient({ legacyMode: true })
+,   db = require('../lib/db')
 ;
 
-redis.connect();
+db.connect();
 
 module.exports = function (app)
 {
@@ -29,7 +29,7 @@ module.exports = function (app)
         if (req.user)
         {
             var key = 'share/' + req.user.uuid;
-            redis.hGetAll(key, function (err, shares)
+            db.hGetAll(key, function (err, shares)
             {
                 shares = _.map(shares, function (value, key)
                 {

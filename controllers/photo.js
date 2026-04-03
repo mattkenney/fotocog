@@ -1,5 +1,5 @@
 /*
- * Copyright 2012, 2013, 2025 Matt Kenney
+ * Copyright 2012, 2013, 2025, 2026 Matt Kenney
  *
  * This file is part of Fotocog.
  *
@@ -19,10 +19,10 @@
 
 var async = require('async')
 ,   photos = require('../lib/photos')
-,   redis = require("redis").createClient({ legacyMode: true })
+,   db = require('../lib/db')
 ;
 
-redis.connect();
+db.connect();
 
 function checkAccess(req, res, callback)
 {
@@ -32,7 +32,7 @@ function checkAccess(req, res, callback)
         return;
     }
     var key = 'share/' + req.user.uuid;
-    redis.hget(key, req.params.handle, function (err, name)
+    db.hGet(key, req.params.handle, function (err, name)
     {
         if (name)
         {
@@ -138,7 +138,7 @@ module.exports = function (app)
     {
         checkRequest(req, res, function()
         {
-            redis.hget("buckets", req.params.handle, function (err, bucket)
+            db.hGet("buckets", req.params.handle, function (err, bucket)
             {
                 photos.photo(bucket, req.params.handle, req.params.photo, function (url)
                 {

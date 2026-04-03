@@ -44,7 +44,9 @@ app.set('views', './views');
 
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieSession({ keys: [credentials.cookie] }));
+app.use(cookieSession({
+    keys: (process.env.COOKIE_KEY || credentials.cookie).split(',').filter(s => !!s)
+}));
 app.use(flash());
 app.use(locale_info());
 
@@ -119,8 +121,14 @@ app.use(function (err, req, res, next)
     });
 });
 
+// ***** Export *****
+
+module.exports = app;
+
 // ***** Server *****
 
-app.listen(app.get('port'));
-
-console.log('Listening on port ' + app.get('port'));
+if (require.main === module)
+{
+    app.listen(app.get('port'));
+    console.log('Listening on port ' + app.get('port'));
+}
