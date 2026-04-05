@@ -42,6 +42,7 @@ module.exports = function (app)
                     accounts.setUserProperty(req.user.key, "agreed", "1", function (err)
                     {
                         if (err) { next(err); return; }
+                        console.debug('account:agree redirect ' + (req.session.redirect || '/'));
                         res.redirect(req.session.redirect || '/');
                         delete req.session.redirect;
                     });
@@ -50,6 +51,7 @@ module.exports = function (app)
             }
             else
             {
+                console.debug('account:needAgree redirect /account/agree');
                 res.redirect('/account/agree');
                 return;
             }
@@ -60,6 +62,7 @@ module.exports = function (app)
 
     app.get('/account/agree', function (req, res)
     {
+        console.debug('account:agree render account/agree');
         res.render('account/agree');
     });
 
@@ -78,9 +81,11 @@ module.exports = function (app)
     {
         if (req.user)
         {
+            console.debug('account:help redirect /');
             res.redirect('/');
             return;
         }
+        console.debug('account:help render account/help');
         res.render('account/help');
     });
 
@@ -88,14 +93,17 @@ module.exports = function (app)
     {
         if (req.user)
         {
+            console.debug('account:reset redirect /');
             res.redirect('/');
             return;
         }
+        console.debug('account:reset render account/reset');
         res.render('account/reset');
     });
 
     app.get('/account/signin', function (req, res, next)
     {
+        console.debug('account:signin render account/signin');
         res.render('account/signin');
     });
 
@@ -110,12 +118,14 @@ module.exports = function (app)
     {
         req.logout(err => {
             if (err) { return next(err); }
+            console.debug('account:signout redirect /');
             res.redirect('/');
         });
     });
 
     app.get('/account/signup', function (req, res)
     {
+        console.debug('account:signup render account/signup');
         res.render('account/signup');
     });
 
@@ -136,6 +146,7 @@ module.exports = function (app)
             {
                 req.flash('error', errors[i]);
             }
+            console.debug('account:signup-post render account/signup (validation)');
             res.render('account/signup', data);
             return;
         }
@@ -158,6 +169,7 @@ module.exports = function (app)
                             {
                                 if (err) { next(err); return; }
                                 req.flash('info', 'You already have an account with this username and password. You are now logged in.');
+                                console.debug('account:signup-post redirect / (existing user)');
                                 res.redirect('/');
                             });
                         });
@@ -165,6 +177,7 @@ module.exports = function (app)
                     else
                     {
                         req.flash('warning', 'That email address is already registered.');
+                        console.debug('account:signup-post render account/signup (duplicate)');
                         res.render('account/signup', data);
                     }
                 });
@@ -177,6 +190,7 @@ module.exports = function (app)
                 req.logIn(user, function (err)
                 {
                     if (err) { next(err); return; }
+                    console.debug('account:signup-post redirect / (new user)');
                     res.redirect('/');
                 });
             });
@@ -185,12 +199,14 @@ module.exports = function (app)
 
     app.get('/account/success', function (req, res)
     {
+        console.debug('account:success redirect ' + (req.session.redirect || '/'));
         res.redirect(req.session.redirect || '/');
         delete req.session.redirect;
     });
 
     app.get('/account/password', function (req, res, next)
     {
+        console.debug('account:password render account/password');
         res.render('account/password');
     });
 
@@ -207,6 +223,7 @@ module.exports = function (app)
         }
         else if (!req.user)
         {
+            console.debug('account:password-post redirect / (no user)');
             res.redirect('/');
             return;
         }
@@ -221,18 +238,21 @@ module.exports = function (app)
                     {
                         if (err) { callback(err); return; }
                         req.flash('success', 'Password changed.');
+                        console.debug('account:password-post redirect / (changed)');
                         res.redirect('/');
                     });
                 }
                 else
                 {
                     req.flash('error', 'Old password does not match.');
+                    console.debug('account:password-post render account/password (mismatch)');
                     res.render('account/password');
                 }
             });
             return;
         }
 
+        console.debug('account:password-post render account/password (flash)');
         res.render('account/password');
     });
 };

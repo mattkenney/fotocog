@@ -40,7 +40,8 @@ function checkAccess(req, res, callback)
             return;
         }
         //TODO: tag based sharing
-        res.render('403',
+        console.debug('photo:checkAccess render 403');
+        res.status(403).render('403',
         {
             status: 403,
             url: req.url,
@@ -54,6 +55,7 @@ function checkLogin(req, res, callback)
 {
     if (!req.user)
     {
+        console.debug('photo:checkLogin redirect /account/signin');
         req.session.redirect = req.url;
         res.redirect('/account/signin');
         callback(true);
@@ -76,7 +78,8 @@ function checkValid(req, res, callback)
         (req.params.hasOwnProperty('day') && (day < 1 || days < day))
         )
     {
-        res.render('404',
+        console.debug('photo:checkValid render 404');
+        res.status(404).render('404',
         {
             status: 404,
             url: req.url,
@@ -90,9 +93,11 @@ function checkValid(req, res, callback)
 
 function checkPath(req, res, callback)
 {
-    if (!(/\/$/).test(req.url) && !(/\/p\//).test(req.url))
+    var url = req.headers['x-original-path'] || req.url;
+    if (!(/\/$/).test(url) && !(/\/p\//).test(url))
     {
-        res.redirect(req.url + '/');
+        console.debug('photo:checkPath redirect ' + url + '/');
+        res.redirect(url + '/');
         callback(true);
         return;
     }
@@ -109,15 +114,18 @@ function checkRequest(req, res, next)
         checkLogin,
         checkAccess,
         checkPath,
-        checkValid,
-        next
-    ]);
+        checkValid
+    ], function (err, req, res)
+    {
+        if (!err) next(req, res);
+    });
 }
 
 module.exports = function (app)
 {
     app.get('/m', function (req, res)
     {
+        console.debug('photo:/m redirect /');
         res.redirect('/');
     });
 
@@ -129,6 +137,7 @@ module.exports = function (app)
             {
                 if (err) return next(err);
 
+                console.debug('photo:handle render photo/root');
                 res.render('photo/root', { years: data });
             });
         });
@@ -142,6 +151,7 @@ module.exports = function (app)
             {
                 photos.photo(bucket, req.params.handle, req.params.photo, function (url)
                 {
+                    console.debug('photo:photo redirect ' + url);
                     res.redirect(url);
                 });
             });
@@ -172,6 +182,7 @@ module.exports = function (app)
                 locals.tri1 = locals.months.slice(0, 4);
                 locals.tri2 = locals.months.slice(4, 8);
                 locals.tri3 = locals.months.slice(8, 12);
+                console.debug('photo:year render photo/year');
                 res.render('photo/year', locals);
             });
         });
@@ -185,6 +196,7 @@ module.exports = function (app)
             {
                 if (err) return next(err);
 
+                console.debug('photo:month render photo/month');
                 res.render('photo/month', {
                     year: req.params.year,
                     days: data,
@@ -203,6 +215,7 @@ module.exports = function (app)
             {
                 if (err) return next(err);
 
+                console.debug('photo:day render photo/day');
                 res.render('photo/day', {
                     year: req.params.year,
                     month: req.locale_info.mon[req.params.month - 1],

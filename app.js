@@ -34,6 +34,7 @@ nunjucks.configure('views', {
     express: app
 });
 
+app.disable('x-powered-by');
 app.enable('trust proxy');
 
 app.set('port', process.env.PORT || 3000);
@@ -45,7 +46,7 @@ app.set('views', './views');
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieSession({
-    keys: (process.env.COOKIE_KEY || credentials.cookie).split(',').filter(s => !!s)
+    keys: credentials.cookie.split(',').filter(s => !!s)
 }));
 app.use(flash());
 app.use(locale_info());
@@ -102,7 +103,8 @@ require('./controllers/root')(app);
 // if we get past all the controllers then we 404
 app.use(function (req, res, next)
 {
-    res.render('404',
+    console.log('app:404 render 404 ' + req.url);
+    res.status(404).render('404',
     {
         status: 404,
         url: req.url,
@@ -113,9 +115,11 @@ app.use(function (req, res, next)
 // pretty error page
 app.use(function (err, req, res, next)
 {
-    res.render('500',
+    console.log('app:500 render 500 ' + req.url);
+    var status = err.status || 500;
+    res.status(status).render('500',
     {
-        status: err.status || 500,
+        status: status,
         error: err,
         user: req.user
     });

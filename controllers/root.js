@@ -39,6 +39,7 @@ module.exports = function (app)
                         name: value
                     });
                 });
+                console.debug('root:/ render root (authenticated)');
                 res.render('root',
                 {
                     shares: shares
@@ -47,6 +48,7 @@ module.exports = function (app)
         }
         else
         {
+            console.debug('root:/ render root (anonymous)');
             res.render('root');
         }
     });

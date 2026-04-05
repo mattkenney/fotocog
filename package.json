@@ -3,6 +3,11 @@
   "description": "Photo sharing for busy people.",
   "version": "0.0.1",
   "private": true,
+  "scripts": {
+    "build": "scripts/build.sh",
+    "deploy": "scripts/deploy.sh",
+    "start": "./app.js"
+  },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.1023.0",
     "@aws-sdk/client-s3": "^3.1023.0",
